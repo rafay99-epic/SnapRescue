@@ -127,11 +127,13 @@ echo "==========================================================================
 
 # Now moving script to the /etc/inicpio/hook
 cd hooks || { echo "Failed to change to hooks directory"; exit 1; }
+sudo mkdir -p /etc/inicpio/hook
 sudo mv switchsnaprotorw /etc/inicpio/hook
 cd .. || { echo "Failed to change to root directory"; exit 1; }
 
 # Now move the script to the /etc/inicpio/install
 cd install || { echo "Failed to change to install directory"; exit 1; }
+sudo mkdir -p /etc/inicpio/install
 sudo mv switchsnaprotorw /etc/inicpio/install
 cd .. || { echo "Failed to change to root directory"; exit 1; }
 
