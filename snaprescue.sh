@@ -4,21 +4,6 @@
 set -eu
 set -o pipefail
 
-# TO Do Task 
-#  1. Add check for installing packages Done
-#  2. make user packages all installed,  Done
-#  8. Remove AUR helper Done
-#  3. agar koi error ho then script exit Done 
-#  Checking for Arch Linxu only
-#  4. check does the system file system btrfs  Done
-#  Adding app check for snapper-rollback  
-
-#  5. Place the files first and if there is any error then exit 
-#  6. Files temper kar ne hai, tu existing files, ka backup. 
-#  7. mkinitcpio file ka be backup. 
-
-
-
 # Important Variables
 # Find the Project Directory
 
@@ -61,10 +46,11 @@ fi
 
 
 
-
-echo "======================================================================================================"
-echo "Checking for Pacakges"
-echo "======================================================================================================"
+echo "╔═════════════════════════════════════════════════════════════════════════════╗"
+echo "║                                                                             ║"
+echo "║                       🚀  Package Check is Starting! 🚀                     ║"
+echo "║                                                                             ║"
+echo "╚═════════════════════════════════════════════════════════════════════════════╝"
 
 
 # List of required packages
@@ -98,10 +84,11 @@ else
     rm -rf snapper-rollback || exit 1
 fi
 
-
-echo "======================================================================================================"
-echo "Unmounting /.snapshots if mounted"
-echo "======================================================================================================"
+echo "╔═════════════════════════════════════════════════════════════════════════════╗"
+echo "║                                                                             ║"
+echo "║                       🚀  Mount Check is Starting! 🚀                       ║"
+echo "║                                                                             ║"
+echo "╚═════════════════════════════════════════════════════════════════════════════╝"
 
 # Unmount /.snapshots if mounted
 # Move to the above if exist file ssytem exits
@@ -111,9 +98,11 @@ else
     echo "/.snapshots is not mounted"
 fi
 
-echo "======================================================================================================"
-echo "Deleting old snapshots"
-echo "======================================================================================================"
+echo "╔═════════════════════════════════════════════════════════════════════════════╗"
+echo "║                                                                             ║"
+echo "║                   🚀  Snapper Drive Mount is Starting! 🚀                   ║"
+echo "║                                                                             ║"
+echo "╚═════════════════════════════════════════════════════════════════════════════╝"
 
 # deleting old snapshots
 cd / || { echo "Failed to change to root directory"; exit 1; }
@@ -125,18 +114,22 @@ else
     echo ".snapshots folder does not exist"
 fi
 
-
-echo "======================================================================================================"
-echo "Creating Snapper config"
-echo "======================================================================================================"
+echo "╔═════════════════════════════════════════════════════════════════════════════╗"
+echo "║                                                                             ║"
+echo "║                       🚀  Btrfs Setup is Starting! 🚀                       ║"
+echo "║                                                                             ║"
+echo "╚═════════════════════════════════════════════════════════════════════════════╝"
 
 # Creating Snapper config
 sudo snapper -c root create-config /
 
 # taking backup of all config incase of any error
-echo "======================================================================================================"
-echo "Taking Backups of files"
-echo "======================================================================================================"
+echo "╔═════════════════════════════════════════════════════════════════════════════╗"
+echo "║                                                                             ║"
+echo "║                      🚀   Backup File is Starting! 🚀                       ║"
+echo "║                                                                             ║"
+echo "╚═════════════════════════════════════════════════════════════════════════════╝"
+
 
 # take backup of /etc/mkinitcpio.conf and if it already exists then don't take it again
 if [ -f "/etc/mkinitcpio.conf" ] && [ -f "/etc/mkinitcpio.conf.bak" ]; then
@@ -160,9 +153,13 @@ else
 fi
 
 
-echo "======================================================================================================"
-echo "Setting up configurations"
-echo "======================================================================================================"
+
+echo "╔═════════════════════════════════════════════════════════════════════════════╗"
+echo "║                                                                             ║"
+echo "║                       🚀  Snapper Config is Starting! 🚀                    ║"
+echo "║                                                                             ║"
+echo "╚═════════════════════════════════════════════════════════════════════════════╝"
+
 
 # For ALLOW_GROUPS
 sudo sed -i 's/^[[:space:]]*ALLOW_GROUPS[[:space:]]*=.*/ALLOW_GROUPS="wheel"/' /etc/snapper/configs/root
@@ -174,26 +171,30 @@ sudo sed -i 's/^[[:space:]]*TIMELINE_LIMIT_YEARLY[[:space:]]*=.*/TIMELINE_LIMIT_
 sudo sed -i 's/^[[:space:]]*TIMELINE_LIMIT_WEEKLY[[:space:]]*=.*/TIMELINE_LIMIT_WEEKLY="0"/' /etc/snapper/configs/root
 sudo sed -i 's/^[[:space:]]*TIMELINE_LIMIT_QUARTERLY[[:space:]]*=.*/TIMELINE_LIMIT_QUARTERLY="0"/' /etc/snapper/configs/root
 
-echo "======================================================================================================"
-echo "Setting up BTRFS options"
-echo "======================================================================================================"
+
+
+echo "╔═════════════════════════════════════════════════════════════════════════════╗"
+echo "║                                                                             ║"
+echo "║                       🚀  Brtfs Config is Starting! 🚀                      ║"
+echo "║                                                                             ║"
+echo "╚═════════════════════════════════════════════════════════════════════════════╝"
+
 
 # changing BTRFS options
 sudo btrfs subvol set-default 256 /
 
-echo "======================================================================================================"
-echo "Enabling Grub-BTRFSd and Snapper Services"
-echo "======================================================================================================"
 
 # enabling snapper service
 sudo systemctl enable --now grub-btrfsd
 sudo systemctl enable --now snapper-timeline.timer
 sudo systemctl enable --now snapper-cleanup.timer
 
+echo "╔═════════════════════════════════════════════════════════════════════════════╗"
+echo "║                                                                             ║"
+echo "║                    🚀  Kernel Level Hooks is Starting 🚀                    ║"
+echo "║                                                                             ║"
+echo "╚═════════════════════════════════════════════════════════════════════════════╝"
 
-echo "======================================================================================================"
-echo "Moving Hooks and Install Scripts"
-echo "======================================================================================================"
 
 # Now moving script to the /etc/inicpio/hook
 cd "$Project_Dir" || { echo "Failed to change to project directory"; exit 1; }
@@ -209,23 +210,26 @@ sudo mkdir -p "$Install_Dir"
 sudo cp -r switchsnaprotorw "$Install_Dir"
 cd .. || { echo "Failed to change to Projecct directory"; exit 1; }
 
-echo "======================================================================================================"
-echo "Adding Hook to the grub"
-echo "======================================================================================================"
-
 # Adding Hook to the grub
 sudo sed -i -E '/^[[:space:]]*HOOKS=/s/\(\s*(.*)\)/(\1 switchsnaprotorw)/' /etc/mkinitcpio.conf
 
-echo "======================================================================================================"
-echo "Refreshing the initramfs"
-echo "======================================================================================================"
+
+echo "╔═════════════════════════════════════════════════════════════════════════════╗"
+echo "║                                                                             ║"
+echo "║                       🚀  Building Kernel is Starting! 🚀                   ║"
+echo "║                                                                             ║"
+echo "╚═════════════════════════════════════════════════════════════════════════════╝"
+
+
+
 
 # Refreshing the initramfs
 sudo mkinitcpio -P
-
-echo "======================================================================================================"
-echo "Renaming the folder for the sub-vol"
-echo "======================================================================================================"
+echo "╔═════════════════════════════════════════════════════════════════════════════╗"
+echo "║                                                                             ║"
+echo "║              🚀  Renaming Mount File is Starting! 🚀                        ║"
+echo "║                                                                             ║"
+echo "╚═════════════════════════════════════════════════════════════════════════════╝"
 
 # Renaming the folder for the sub-vol
 sudo sed -i -E '/^[[:space:]]*subvol_snapshots[[:space:]]*=[[:space:]]*@snapshots[[:space:]]*$/s/^[[:space:]]*subvol_snapshots[[:space:]]*=[[:space:]]*@snapshots/subvol_snapshots = @.snapshots/' /etc/snapper-rollback.conf
@@ -234,17 +238,19 @@ sudo sed -i -E '/^[[:space:]]*subvol_snapshots[[:space:]]*=[[:space:]]*@snapshot
 
 # Identifying the disks and adding theme into the snapper config
 # Telling the user which drivers does this have.
-echo "======================================================================================================"
-echo "                             BTRFS Partition Detection for Snapper Setup"
-echo "======================================================================================================"
-echo "We have identified the following BTRFS partitions on your system:"
-echo "Please select the partition that contains the root, home, and other necessary subvolumes."
-echo "======================================================================================================"
-echo "If you are unsure, simply press Enter, and the script will attempt to auto-detect the partition."
-echo "However, please review the output carefully to avoid any potential issues."
-echo "======================================================================================================"
-echo "WARNING: Use this script at your own risk. Double-check your selections before proceeding."
-echo "======================================================================================================"
+
+echo "╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗"
+echo "║                                                                                                     ║"
+echo "║🚀 We have identified the following BTRFS partitions on your system    🚀                            ║"
+echo "║🚀 Please select the partition that contains the root, home, and other necessary subvolumes. 🚀      ║"
+echo "║🚀 If you are unsure, simply press Enter, and the script will attempt to auto-detect the partition.🚀║"
+echo "║🚀 However, please review the output carefully to avoid any potential issues.🚀                      ║"
+echo "║                                                                                                     ║"
+echo "║🚀    WARNING: Use this script at your own risk. Double-check your selections before proceeding.🚀   ║"
+echo "║                                                                                                     ║"
+echo "║                                                                                                     ║"
+echo "╚═════════════════════════════════════════════════════════════════════════════════════════════════════╝"
+
 
 # Show available partitions
 lsblk
@@ -270,20 +276,34 @@ fi
 
 echo "Selected driver: $driver"
 
-echo "======================================================================================================"
-echo "Entering the driver name into the snapper config"
-echo "======================================================================================================"
+
+echo "╔═════════════════════════════════════════════════════════════════════════════╗"
+echo "║                                                                             ║"
+echo "║              🚀  Enter Drive Name is Starting! 🚀                           ║"
+echo "║                                                                             ║"
+echo "╚═════════════════════════════════════════════════════════════════════════════╝"
 
 # Enter the driver name into the snapper config
 echo "dev = /dev/$driver" | sudo tee -a /etc/snapper-rollback.conf
 
 
 
-echo "======================================================================================================"
-echo "                                   Snapper Setup is Complete!"
-echo "======================================================================================================"
-echo "All changes have been successfully applied. You can choose to reboot your system now or later."
-echo "======================================================================================================"
+echo "╔═════════════════════════════════════════════════════════════════════════════╗"
+echo "║                                                                             ║"
+echo "║              🚀  Congratulations! 🚀                                        ║"
+echo "║                                                                             ║"
+echo "║        All changes have been successfully applied.                          ║"
+echo "║        You can choose to reboot your system now or later.                   ║"
+echo "╚═════════════════════════════════════════════════════════════════════════════╝"
+
+
+
+
+echo "╔═════════════════════════════════════════════════════════════════════════════╗"
+echo "║                                                                             ║"
+echo "║              🚀  Snapper System Restart is Starting! 🚀                     ║"
+echo "║                                                                             ║"
+echo "╚═════════════════════════════════════════════════════════════════════════════╝"
 
 # Prompt the user to choose whether to reboot now or later
 read -p "Do you want to reboot now? (y/n): " choice || { echo "Invalid input. Exiting script."; exit 1; }
