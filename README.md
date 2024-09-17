@@ -41,17 +41,40 @@
    - Review the current BTRFS partitions.
    - Choose to reboot now or later.
 
-## 📜 Example
+## 📜 **Commands**
 
-```bash
-======================================================================================================
-                                Snapper Setup is Complete!
-======================================================================================================
-All changes have been successfully applied. You can choose to reboot your system now or later.
-======================================================================================================
-Do you want to reboot now? (y/n): y
-Rebooting the system...
-```
+- **Automatic Snapshots**: Snapper automatically creates a snapshot when you install, remove, or make changes to applications.
+
+- **List All Snapshots**: To view all snapshots, run:
+
+  ```bash
+  snapper ls
+  ```
+
+- **Rollback to a Previous Snapshot**: To revert to a previous snapshot, use:
+
+  ```bash
+  sudo snapper rollback <snapper-id>
+  ```
+
+  Replace `<snapper-id>` with the ID of the snapshot, which you can find by listing all snapshots.
+
+- **Manually Create a Snapshot**: To create a snapshot manually, use:
+
+  ```bash
+  snapper -c root create -d "<Name of the snapshot>"
+  ```
+
+  Replace `<Name of the snapshot>` with a descriptive name for the snapshot.
+
+- **Automatic Snapshot Cleanup**: Snapshots older than 7 days are automatically deleted.
+
+- **Access Snapshots via GRUB**: All snapshots are visible in the GRUB menu under "Arch Linux - Snapshots". To restore:
+
+  1. Select the desired snapshot from the GRUB menu.
+  2. Press Enter to boot from the snapshot.
+
+  **Note**: Ensure you select the snapshot image in the GRUB menu, not the fallback image.
 
 ## 📝 Notes
 
