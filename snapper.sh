@@ -138,17 +138,17 @@ echo "Moving Hooks and Install Scripts"
 echo "======================================================================================================"
 
 # Now moving script to the /etc/inicpio/hook
-cd "$Project_Dir" || { echo "Failed to change to project directory"; exit 1; }
+cd $Project_Dir || { echo "Failed to change to project directory"; exit 1; }
 cd hooks || { echo "Failed to change to hooks directory"; exit 1; }
-sudo mkdir -p "$Hook_Dir"
-sudo mv switchsnaprotorw "$Hook_Dir"
+sudo mkdir -p $Hook_Dir
+sudo mv switchsnaprotorw $Hook_Dir
 cd .. || { echo "Failed to change to Project directory"; exit 1; }
 
 cd "$Project_Dir" || { echo "Failed to change to project directory"; exit 1; }
 # Now move the script to the /etc/inicpio/install
 cd install || { echo "Failed to change to install directory"; exit 1; }
-sudo mkdir -p "$Install_Dir"
-sudo mv switchsnaprotorw "$Install_Dir"
+sudo mkdir -p $Install_Dir
+sudo mv switchsnaprotorw $Install_Dir
 cd .. || { echo "Failed to change to Projecct directory"; exit 1; }
 
 echo "======================================================================================================"
