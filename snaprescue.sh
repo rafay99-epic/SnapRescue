@@ -15,7 +15,6 @@ set -o pipefail
 
 #  5. Place the files first and if there is any error then exit 
 #  6. Files temper kar ne hai, tu existing files, ka backup. 
-#  6. incpioint file ka backup
 #  7. mkinitcpio file ka be backup. 
 
 
@@ -53,6 +52,14 @@ else
     echo "System is not Arch based. Exiting script."
     exit 1
 fi
+
+
+#  Move File First
+
+#  mkinitcpio backup 
+#  sapper-rollback backup 
+
+
 
 
 echo "======================================================================================================"
