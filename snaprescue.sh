@@ -212,7 +212,7 @@ echo "Entering the driver name into the snapper config"
 echo "======================================================================================================"
 
 # Enter the driver name into the snapper config
-echo "dev = /dev/$driver" >> sudo /etc/snapper-rollback.conf
+echo "dev = /dev/$driver" | sudo tee -a /etc/snapper-rollback.conf
 
 
 
