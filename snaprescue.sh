@@ -6,7 +6,7 @@ set -o pipefail
 
 # TO Do Task 
 #  1. Add check for installing packages Done
-#  2. make usre pakages all installed,  Done
+#  2. make user packages all installed,  Done
 #  8. Remove AUR helper Done
 #  3. agar koi error ho then script exit Done 
 
@@ -53,16 +53,18 @@ else
     echo "All required packages are already installed."
 fi
 
-#  check for snapper-rollback package in the sytem
+#  check for snapper-rollback package in the system
+if pacman -Qi snapper-rollback &> /dev/null; then
+    echo "snapper-rollback package is already installed."
+else
+    #Installling snapper-rollback package
+    git clone https://aur.archlinux.org/snapper-rollback.git || { echo "Failed to clone snapper-rollback. Exiting."; exit 1; }
+    cd snapper-rollback || exit 1
+    makepkg -si --noconfirm || { echo "Failed to install snapper-rollback. Exiting."; exit 1; }
+    cd .. || exit 1
+    rm -rf snapper-rollback || exit 1
+fi
 
-
-
-#Installling snapper-rollback package
-git clone https://aur.archlinux.org/snapper-rollback.git || { echo "Failed to clone snapper-rollback. Exiting."; exit 1; }
-cd snapper-rollback || exit 1
-makepkg -si --noconfirm || { echo "Failed to install snapper-rollback. Exiting."; exit 1; }
-cd .. || exit 1
-rm -rf snapper-rollback || exit 1
 
 echo "======================================================================================================"
 echo "Unmounting /.snapshots if mounted"
