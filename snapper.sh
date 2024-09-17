@@ -4,8 +4,8 @@
 # Find the Project Directory
 
 Project_Dir=$(pwd)
-Hook_Dir="/etc/inicpio/hooks"
-Install_Dir="/etc/inicpio/install"
+Hook_Dir="/etc/initcpio/hooks"
+Install_Dir="/etc/initcpio/install"
 
 # Function to install AUR helper binary
 install_aur_helper() {
