@@ -1,5 +1,19 @@
 #!/bin/bash
 
+# TO Do Task 
+#  1. Add check for installing packages
+#  2. make usre pakages all installed, 
+#  3. agar koi error ho then script exit
+#  4. check does the system file system btrfs 
+#  5. Place the files first and if there is any error then exit 
+#  6. Files temper kar ne hai, tu existing files, ka backup. 
+#  6. incpioint file ka backup
+#  7. mkinitcpio file ka be backup. 
+#  8. Remove AUR helper
+
+
+
+
 # Important Variables
 # Find the Project Directory
 
@@ -24,41 +38,31 @@ echo "                                   Snapper Setup is Starting!"
 echo "======================================================================================================"
 
 echo "======================================================================================================"
-echo "Checking for AUR Helper"
+echo "Checking for Pacakges"
 echo "======================================================================================================"
-# Check if an AUR helper is installed
-if command -v yay &> /dev/null; then
-    aur_helper="yay"
-elif command -v paru &> /dev/null; then
-    aur_helper="paru"
-else
-    echo "No AUR helper found. Choose an AUR helper to install:"
-    echo "1) yay-bin"
-    echo "2) paru-bin"
-    read -p "Enter your choice (1 or 2): " choice
 
-    # Check if git is installed
-    if ! command -v git &> /dev/null; then
-        echo "Git is required to install the AUR helper. Please install git first."
-        exit 1
+
+# snapper-rollback Remaining Package
+# List of required packages
+required_packages=(snapper snap-pac grub-btrfs inotify-tools git)
+
+# Check if all required packages are installed
+missing_packages=()
+for package in "${required_packages[@]}"; do
+    if ! pacman -Qi "$package" &> /dev/null; then
+        missing_packages+=("$package")
     fi
+done
 
-    case $choice in
-        1) install_aur_helper "yay-bin"; aur_helper="yay" ;;
-        2) install_aur_helper "paru-bin"; aur_helper="paru" ;;
-        *) echo "Invalid choice. Exiting."; exit 1 ;;
-    esac
-fi
-
-echo "Using AUR helper: $aur_helper"
-
-# Check if snapper is installed
-if ! command -v snapper &> /dev/null; then
-    echo "Snapper is not installed."
-    $aur_helper -S snapper snapper-rollback snap-pac grub-btrfs inotify-tools --needed --noconfirm
+# Install missing packages if any
+if [ ${#missing_packages[@]} -gt 0 ]; then
+    echo "Installing missing packages: ${missing_packages[*]}"
+    sudo pacman -S "${missing_packages[@]}" --needed --noconfirm || { echo "Failed to install packages. Exiting."; exit 1; }
 else
-    echo "Snapper is installed."
+    echo "All required packages are already installed."
 fi
+
+# Add snapper-rollback package
 
 
 echo "======================================================================================================"
