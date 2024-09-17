@@ -151,7 +151,7 @@ echo "Adding Hook to the grub"
 echo "======================================================================================================"
 
 # Adding Hook to the grub
-sudo sed -i -E '/^[[:space:]]*HOOKS=/s/^[[:space:]]*HOOKS=/HOOKS=/; s/\(\s+/\(/; s/\s+/ /g; s/\s*\)/ switchsnaprotorw)/' /etc/mkinitcpio.conf
+sudo sed -i -E '/^[[:space:]]*HOOKS=/s/\(\s*(.*)\)/(\1 switchsnaprotorw)/' mkinitcpio.conf
 
 echo "======================================================================================================"
 echo "Refreshing the initramfs"
