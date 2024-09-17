@@ -62,8 +62,12 @@ else
     echo "All required packages are already installed."
 fi
 
-# Add snapper-rollback package
-
+#Installling snapper-rollback package
+git clone https://aur.archlinux.org/snapper-rollback.git
+cd snapper-rollback || exit 1
+makepkg -si --noconfirm
+cd .. || exit 1
+rm -rf snapper-rollback || exit 1
 
 echo "======================================================================================================"
 echo "Unmounting /.snapshots if mounted"
