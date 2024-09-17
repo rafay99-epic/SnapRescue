@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Extract the name of the driver (assuming it's the first field in the output)
-driver=$(lsblk -f | grep btrfs | awk '{print $1}')
+# Extract the name of the driver (excluding special characters like └─)
+driver=$(lsblk -f | grep btrfs | awk '{print $1}' | sed 's/[^a-zA-Z0-9]//g')
 
 # Check if a driver was found
 if [ -z "$driver" ]; then

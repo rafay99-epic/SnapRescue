@@ -99,8 +99,65 @@ sudo sed -i -E '/^[[:space:]]*subvol_snapshots[[:space:]]*=[[:space:]]*@snapshot
 # Identifying the disks and adding theme into the snapper config
 # Telling the user which drivers does this have.
 
+
+echo "======================================================================================================"
+echo "                             BTRFS Partition Detection for Snapper Setup"
+echo "======================================================================================================"
+echo "We have identified the following BTRFS partitions on your system:"
+echo "Please select the partition that contains the root, home, and other necessary subvolumes."
+echo "======================================================================================================"
+echo "If you are unsure, simply press Enter, and the script will attempt to auto-detect the partition."
+echo "However, please review the output carefully to avoid any potential issues."
+echo "======================================================================================================"
+echo "WARNING: Use this script at your own risk. Double-check your selections before proceeding."
+echo "======================================================================================================"
+
+# Show available partitions
 lsblk
 
+echo "======================================================================================================"
 
 
+driver=$(lsblk -f | grep btrfs | awk '{print $1}' | sed 's/[^a-zA-Z0-9]//g')
+
+# Check if a driver was found
+if [ -z "$driver" ]; then
+    echo "No BTRFS partition Detected. Please enter the driver name:"
+    read -r driver
+else
+    # Prompt the user to confirm the driver
+    echo "Found BTRFS partition: $driver. Press Enter to confirm or enter another driver name:"
+    read -r input
+    # If the user enters something, override the driver with the new input
+    if [ -n "$input" ]; then
+        driver="$input"
+    fi
+fi
+
+echo "Selected driver: $driver"
+
+
+# Enter the driver name into the snapper config
+echo "dev = /dev/$driver" >> /etc/snapper-rollback.conf
+
+
+
+echo "======================================================================================================"
+echo "                                   Snapper Setup is Complete!"
+echo "======================================================================================================"
+echo "All changes have been successfully applied. You can choose to reboot your system now or later."
+echo "======================================================================================================"
+
+# Prompt the user to choose whether to reboot now or later
+read -p "Do you want to reboot now? (y/n): " choice || { echo "Invalid input. Exiting script."; exit 1; }
+
+# Handle the user's choice
+if [[ "$choice" =~ ^[Yy]$ ]]; then
+    echo "Rebooting the system..."
+    reboot
+else
+    echo "You have chosen to reboot later. Please make sure to reboot your system manually to apply the changes."
+    echo "Exiting script."
+    exit 0
+fi
 
