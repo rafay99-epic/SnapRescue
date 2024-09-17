@@ -9,8 +9,10 @@ set -o pipefail
 #  2. make user packages all installed,  Done
 #  8. Remove AUR helper Done
 #  3. agar koi error ho then script exit Done 
+#  Checking for Arch Linxu only
+#  4. check does the system file system btrfs  Done
+#  Adding app check for snapper-rollback  
 
-#  4. check does the system file system btrfs 
 #  5. Place the files first and if there is any error then exit 
 #  6. Files temper kar ne hai, tu existing files, ka backup. 
 #  6. incpioint file ka backup
@@ -25,9 +27,33 @@ Project_Dir=$(pwd)
 Hook_Dir="/etc/initcpio/hooks"
 Install_Dir="/etc/initcpio/install"
 
-echo "======================================================================================================"
-echo "                                   Snapper Setup is Starting!"
-echo "======================================================================================================"
+echo "╔═════════════════════════════════════════════════════════════════════════════╗"
+echo "║                                                                             ║"
+echo "║                       🚀  SnapRescue is Starting! 🚀                        ║"
+echo "║                                                                             ║"
+echo "╚═════════════════════════════════════════════════════════════════════════════╝"
+
+
+# Checking for BTRFS Partition
+filesystem=$(findmnt -n -o FSTYPE /)
+
+# Check if the file system is Btrfs
+if [[ "$filesystem" == "btrfs" ]]; then
+    echo "File system is Btrfs. No action required."
+else
+    echo "File system is not Btrfs. Exiting script."
+    exit 1
+fi
+
+
+# Check for it's  an arch based sytem 
+if grep -q "Arch Linux" /etc/os-release; then
+    echo "System is Arch based. No action required."
+else
+    echo "System is not Arch based. Exiting script."
+    exit 1
+fi
+
 
 echo "======================================================================================================"
 echo "Checking for Pacakges"
