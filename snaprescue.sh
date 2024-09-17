@@ -63,9 +63,9 @@ else
 fi
 
 #Installling snapper-rollback package
-git clone https://aur.archlinux.org/snapper-rollback.git
+git clone https://aur.archlinux.org/snapper-rollback.git || { echo "Failed to clone snapper-rollback. Exiting."; exit 1; }
 cd snapper-rollback || exit 1
-makepkg -si --noconfirm
+makepkg -si --noconfirm || { echo "Failed to install snapper-rollback. Exiting."; exit 1; }
 cd .. || exit 1
 rm -rf snapper-rollback || exit 1
 
