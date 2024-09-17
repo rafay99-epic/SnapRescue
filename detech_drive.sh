@@ -1,29 +1,20 @@
 #!/bin/bash
 
-# Get list of block devices and mount points
-lsblk_output=$(lsblk -o NAME,MOUNTPOINT)
+# Extract the name of the driver (assuming it's the first field in the output)
+driver=$(lsblk -f | grep btrfs | awk '{print $1}')
 
-# Function to find the driver by mount point
-find_driver() {
-    local mount_point=$1
-    local driver=$(echo "$lsblk_output" | grep "$mount_point" | awk '{print $1}')
-    
-    if [[ -z "$driver" ]]; then
-        # Ask user for input if the mount point is not found
-        echo "No $mount_point found. Please enter the device name for $mount_point (e.g., sda1, nvme0n1p1):"
-        read driver
+# Check if a driver was found
+if [ -z "$driver" ]; then
+    echo "No BTRFS partition found. Please enter the driver name:"
+    read -r driver
+else
+    # Prompt the user to confirm the driver
+    echo "Found BTRFS partition: $driver. Press Enter to confirm or enter another driver name:"
+    read -r input
+    # If the user enters something, override the driver with the new input
+    if [ -n "$input" ]; then
+        driver="$input"
     fi
-    
-    echo "$driver"
-}
+fi
 
-# Find drivers for /boot, /root, and /home
-boot_driver=$(find_driver "/boot")
-root_driver=$(find_driver "/")
-home_driver=$(find_driver "/home")
-
-# Store all drivers into a single variable
-all_drivers="$boot_driver $root_driver $home_driver"
-
-# Output the drivers
-echo "Drivers: $all_drivers"
+echo "Selected driver: $driver"
