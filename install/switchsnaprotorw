@@ -1,0 +1,17 @@
+#!/bin/bash
+
+build() {
+    add_module btrfs
+    add_binary btrfs
+    add_binary btrfsck
+    add_binary blkid
+    add_runscript
+}
+
+help() {
+    cat <<HELPEOF
+This hook creates a copy of the snapshot in read only mode before boot.
+HELPEOF
+}
+
+# vim: set ft=sh ts=4 sw=4 et:
