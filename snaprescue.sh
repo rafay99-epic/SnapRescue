@@ -1,65 +1,74 @@
 #!/bin/bash
 
+# Exit on error, undefined variable, and pipe failure
+set -eu
+set -o pipefail
+
 # Important Variables
 # Find the Project Directory
-
 Project_Dir=$(pwd)
 Hook_Dir="/etc/initcpio/hooks"
 Install_Dir="/etc/initcpio/install"
 
-# Function to install AUR helper binary
-install_aur_helper() {
-    local helper=$1
-    local repo="https://aur.archlinux.org/${helper}.git"
-    git clone "$repo"
-    cd "${helper}" || exit 1
-    makepkg -si --noconfirm
+
+# Checking for BTRFS Partition
+filesystem=$(findmnt -n -o FSTYPE /)
+
+# Check if the file system is Btrfs
+if [[ "$filesystem" == "btrfs" ]]; then
+    echo "File system is Btrfs. No action required."
+else
+    echo "File system is not Btrfs. Exiting script."
+    exit 1
+fi
+
+
+# Check for it's  an arch based sytem 
+if grep -q "Arch Linux" /etc/os-release; then
+    echo "System is Arch based. No action required."
+else
+    echo "System is not Arch based. Exiting script."
+    exit 1
+fi
+
+echo "======================================================================================================"
+echo "Installing necessary dependencies"
+echo "======================================================================================================"
+
+# List of required packages
+required_packages=(snapper snap-pac grub-btrfs inotify-tools git)
+
+# Check if all required packages are installed
+missing_packages=()
+for package in "${required_packages[@]}"; do
+    if ! pacman -Qi "$package" &> /dev/null; then
+        missing_packages+=("$package")
+    fi
+done
+
+# Install missing packages if any
+if [ ${#missing_packages[@]} -gt 0 ]; then
+    echo "Installing missing packages: ${missing_packages[*]}"
+    sudo pacman -S "${missing_packages[@]}" --needed --noconfirm || { echo "Failed to install packages. Exiting."; exit 1; }
+else
+    echo "All required packages are already installed."
+fi
+
+#  check for snapper-rollback package in the system
+if pacman -Qi snapper-rollback &> /dev/null; then
+    echo "snapper-rollback package is already installed."
+else
+    #Installling snapper-rollback package
+    git clone https://aur.archlinux.org/snapper-rollback.git || { echo "Failed to clone snapper-rollback. Exiting."; exit 1; }
+    cd snapper-rollback || exit 1
+    makepkg -si --noconfirm || { echo "Failed to install snapper-rollback. Exiting."; exit 1; }
     cd .. || exit 1
-    rm -rf "${helper}"
-    echo "${helper} has been installed successfully."
-}
+    rm -rf snapper-rollback || exit 1
+fi
 
 echo "======================================================================================================"
 echo "                                   Snapper Setup is Starting!"
 echo "======================================================================================================"
-
-echo "======================================================================================================"
-echo "Checking for AUR Helper"
-echo "======================================================================================================"
-# Check if an AUR helper is installed
-if command -v yay &> /dev/null; then
-    aur_helper="yay"
-elif command -v paru &> /dev/null; then
-    aur_helper="paru"
-else
-    echo "No AUR helper found. Choose an AUR helper to install:"
-    echo "1) yay-bin"
-    echo "2) paru-bin"
-    read -p "Enter your choice (1 or 2): " choice
-
-    # Check if git is installed
-    if ! command -v git &> /dev/null; then
-        echo "Git is required to install the AUR helper. Please install git first."
-        exit 1
-    fi
-
-    case $choice in
-        1) install_aur_helper "yay-bin"; aur_helper="yay" ;;
-        2) install_aur_helper "paru-bin"; aur_helper="paru" ;;
-        *) echo "Invalid choice. Exiting."; exit 1 ;;
-    esac
-fi
-
-echo "Using AUR helper: $aur_helper"
-
-# Check if snapper is installed
-if ! command -v snapper &> /dev/null; then
-    echo "Snapper is not installed."
-    $aur_helper -S snapper snapper-rollback snap-pac grub-btrfs inotify-tools --needed --noconfirm
-else
-    echo "Snapper is installed."
-fi
-
 
 echo "======================================================================================================"
 echo "Unmounting /.snapshots if mounted"
@@ -95,8 +104,32 @@ echo "==========================================================================
 # Creating Snapper config
 sudo snapper -c root create-config /
 
-# Updating the snapper config
+echo "======================================================================================================"
+echo "Taking backups of important files"
+echo "======================================================================================================"
 
+# take backup of /etc/mkinitcpio.conf and if it already exists then don't take it again
+if [ -f "/etc/mkinitcpio.conf" ] && [ -f "/etc/mkinitcpio.conf.bak" ]; then
+    echo "/etc/mkinitcpio.conf.bak already exists. Skipping backup."
+else
+    sudo cp /etc/mkinitcpio.conf /etc/mkinitcpio.conf.bak || { echo "Failed to backup /etc/mkinitcpio.conf, Exiting."; exit 1; }
+fi
+
+# take backup of /etc/snapper-rollback.conf and if it already exists then don't take it again
+if [ -f "/etc/snapper-rollback.conf" ] && [ -f "/etc/snapper-rollback.conf.bak" ]; then
+    echo "/etc/snapper-rollback.conf.bak already exists. Skipping backup."
+else
+    sudo cp /etc/snapper-rollback.conf /etc/snapper-rollback.conf.bak || { echo "Failed to backup /etc/snapper-rollback.conf, Exiting."; exit 1; }
+fi
+
+# take backup of /etc/snapper/configs/root and if it already exists then don't take it again
+if [ -f "/etc/snapper/configs/root" ] && [ -f "/etc/snapper/configs/root.bak" ]; then
+    echo "/etc/snapper/configs/root.bak already exists. Skipping backup."
+else
+    sudo cp /etc/snapper/configs/root /etc/snapper/configs/root.bak || { echo "Failed to backup /etc/snapper/configs/root, Exiting."; exit 1; }
+fi
+
+# Updating the snapper config
 echo "======================================================================================================"
 echo "Setting up Snapper Config"
 echo "======================================================================================================"
