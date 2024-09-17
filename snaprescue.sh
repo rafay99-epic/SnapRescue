@@ -1,16 +1,20 @@
 #!/bin/bash
 
+# Exit on error, undefined variable, and pipe failure
+set -eu
+set -o pipefail
+
 # TO Do Task 
-#  1. Add check for installing packages
-#  2. make usre pakages all installed, 
-#  3. agar koi error ho then script exit
+#  1. Add check for installing packages Done
+#  2. make usre pakages all installed,  Done
+#  8. Remove AUR helper Done
+#  3. agar koi error ho then script exit Done 
+
 #  4. check does the system file system btrfs 
 #  5. Place the files first and if there is any error then exit 
 #  6. Files temper kar ne hai, tu existing files, ka backup. 
 #  6. incpioint file ka backup
 #  7. mkinitcpio file ka be backup. 
-#  8. Remove AUR helper
-
 
 
 
@@ -21,18 +25,6 @@ Project_Dir=$(pwd)
 Hook_Dir="/etc/initcpio/hooks"
 Install_Dir="/etc/initcpio/install"
 
-# Function to install AUR helper binary
-install_aur_helper() {
-    local helper=$1
-    local repo="https://aur.archlinux.org/${helper}.git"
-    git clone "$repo"
-    cd "${helper}" || exit 1
-    makepkg -si --noconfirm
-    cd .. || exit 1
-    rm -rf "${helper}"
-    echo "${helper} has been installed successfully."
-}
-
 echo "======================================================================================================"
 echo "                                   Snapper Setup is Starting!"
 echo "======================================================================================================"
@@ -42,7 +34,6 @@ echo "Checking for Pacakges"
 echo "======================================================================================================"
 
 
-# snapper-rollback Remaining Package
 # List of required packages
 required_packages=(snapper snap-pac grub-btrfs inotify-tools git)
 
@@ -61,6 +52,10 @@ if [ ${#missing_packages[@]} -gt 0 ]; then
 else
     echo "All required packages are already installed."
 fi
+
+#  check for snapper-rollback package in the sytem
+
+
 
 #Installling snapper-rollback package
 git clone https://aur.archlinux.org/snapper-rollback.git || { echo "Failed to clone snapper-rollback. Exiting."; exit 1; }
@@ -242,4 +237,5 @@ else
     echo "Exiting script."
     exit 0
 fi
+
 
