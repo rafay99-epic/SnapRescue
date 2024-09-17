@@ -133,10 +133,35 @@ echo "==========================================================================
 # Creating Snapper config
 sudo snapper -c root create-config /
 
-# Updating the snapper config
+# taking backup of all config incase of any error
+echo "======================================================================================================"
+echo "Taking Backups of files"
+echo "======================================================================================================"
+
+# take backup of /etc/mkinitcpio.conf and if it already exists then don't take it again
+if [ -f "/etc/mkinitcpio.conf" ] && [ -f "/etc/mkinitcpio.conf.bak" ]; then
+    echo "/etc/mkinitcpio.conf.bak already exists. Skipping backup."
+else
+    sudo cp /etc/mkinitcpio.conf /etc/mkinitcpio.conf.bak || { echo "Failed to backup /etc/mkinitcpio.conf, Exiting."; exit 1; }
+fi
+
+# take backup of /etc/snapper-rollback.conf and if it already exists then don't take it again
+if [ -f "/etc/snapper-rollback.conf" ] && [ -f "/etc/snapper-rollback.conf.bak" ]; then
+    echo "/etc/snapper-rollback.conf.bak already exists. Skipping backup."
+else
+    sudo cp /etc/snapper-rollback.conf /etc/snapper-rollback.conf.bak || { echo "Failed to backup /etc/snapper-rollback.conf, Exiting."; exit 1; }
+fi
+
+# take backup of /etc/snapper/configs/root and if it already exists then don't take it again
+if [ -f "/etc/snapper/configs/root" ] && [ -f "/etc/snapper/configs/root.bak" ]; then
+    echo "/etc/snapper/configs/root.bak already exists. Skipping backup."
+else
+    sudo cp /etc/snapper/configs/root /etc/snapper/configs/root.bak || { echo "Failed to backup /etc/snapper/configs/root, Exiting."; exit 1; }
+fi
+
 
 echo "======================================================================================================"
-echo "Setting up Snapper Config"
+echo "Setting up configurations"
 echo "======================================================================================================"
 
 # For ALLOW_GROUPS
