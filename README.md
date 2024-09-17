@@ -66,9 +66,9 @@ Contributions are welcome! If you have suggestions or improvements, please submi
 
 For any questions or support, please contact the author:
 
-[Abdul Rafay](https://www.rafay99.com/contact-me)
+- [Abdul Rafay](https://www.rafay99.com/contact-me)
 
-[Sharjeel Mazhar](mailto:sharjeelmazhar@gmail.com)
+- [Sharjeel Mazhar](mailto:sharjeelmazhar@gmail.com)
 
 ## 📄 License
 
