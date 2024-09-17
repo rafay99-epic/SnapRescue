@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Function to install AUR helper
+# Function to install AUR helper binary
 install_aur_helper() {
     local helper=$1
     local repo="https://aur.archlinux.org/${helper}.git"
@@ -16,12 +16,15 @@ echo "==========================================================================
 echo "                                   Snapper Setup is Starting!"
 echo "======================================================================================================"
 
-
 echo "======================================================================================================"
 echo "Checking for AUR Helper"
 echo "======================================================================================================"
 # Check if an AUR helper is installed
-if ! command -v yay &> /dev/null && ! command -v paru &> /dev/null; then
+if command -v yay &> /dev/null; then
+    aur_helper="yay"
+elif command -v paru &> /dev/null; then
+    aur_helper="paru"
+else
     echo "No AUR helper found. Choose an AUR helper to install:"
     echo "1) yay-bin"
     echo "2) paru-bin"
@@ -34,23 +37,22 @@ if ! command -v yay &> /dev/null && ! command -v paru &> /dev/null; then
     fi
 
     case $choice in
-        1) install_aur_helper "yay-bin" ;;
-        2) install_aur_helper "paru-bin" ;;
+        1) install_aur_helper "yay-bin"; aur_helper="yay" ;;
+        2) install_aur_helper "paru-bin"; aur_helper="paru" ;;
         *) echo "Invalid choice. Exiting."; exit 1 ;;
     esac
-else
-    echo "An AUR helper (yay or paru) is already installed."
 fi
 
-echo
+echo "Using AUR helper: $aur_helper"
 
 # Check if snapper is installed
 if ! command -v snapper &> /dev/null; then
     echo "Snapper is not installed."
-    yay -S snapper snapper-rollback snap-pac grub-btrfs inotify-tools --needed --noconfirm
+    $aur_helper -S snapper snapper-rollback snap-pac grub-btrfs inotify-tools --needed --noconfirm
 else
     echo "Snapper is installed."
 fi
+
 
 echo "======================================================================================================"
 echo "Unmounting /.snapshots if mounted"
@@ -58,8 +60,8 @@ echo "==========================================================================
 
 # Unmount /.snapshots if mounted
 # Move to the above if exist file ssytem exits
-if mountpoint -q /.snapshots; then
-    umount /.snapshots || { echo "Failed to unmount /.snapshots"; }
+if sudo mountpoint -q /.snapshots; then
+    sudo umount /.snapshots || { echo "Failed to unmount /.snapshots"; }
 else
     echo "/.snapshots is not mounted"
 fi
@@ -72,7 +74,7 @@ echo "==========================================================================
 cd / || { echo "Failed to change to root directory"; exit 1; }
 
 if [ -d ".snapshots" ]; then
-    rm -rf .snapshots || { echo "Failed to remove .snapshots"; exit 1; }
+    sudo rm -rf .snapshots || { echo "Failed to remove .snapshots"; exit 1; }
     echo ".snapshots folder has been removed"
 else
     echo ".snapshots folder does not exist"
@@ -138,7 +140,7 @@ echo "Adding Hook to the grub"
 echo "======================================================================================================"
 
 # Adding Hook to the grub
-sed -i -E '/^[[:space:]]*HOOKS=/s/^[[:space:]]*HOOKS=/HOOKS=/; s/\(\s+/\(/; s/\s+/ /g; s/\s*\)/ switchsnaprotorw)/' /etc/mkinitcpio.conf
+sudo sed -i -E '/^[[:space:]]*HOOKS=/s/^[[:space:]]*HOOKS=/HOOKS=/; s/\(\s+/\(/; s/\s+/ /g; s/\s*\)/ switchsnaprotorw)/' /etc/mkinitcpio.conf
 
 echo "======================================================================================================"
 echo "Refreshing the initramfs"
@@ -199,7 +201,7 @@ echo "Entering the driver name into the snapper config"
 echo "======================================================================================================"
 
 # Enter the driver name into the snapper config
-echo "dev = /dev/$driver" >> /etc/snapper-rollback.conf
+sudo echo "dev = /dev/$driver" >> /etc/snapper-rollback.conf
 
 
 
