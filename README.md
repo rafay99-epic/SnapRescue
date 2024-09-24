@@ -15,7 +15,7 @@
 ### Automatic Installation
 
 ```bash
-bash -c "$(curl -fsSL https://rafay99.com/snaprescue.sh | bash)"
+curl -fsSL https://rafay99.com/snaprescue.sh | sh
 ```
 
 - Copy this command and paste it in your terminal.
