@@ -256,7 +256,7 @@ echo "All changes have been successfully applied. You can choose to reboot your 
 echo "======================================================================================================"
 
 # Prompt the user to choose whether to reboot now or later
-read -p "Do you want to reboot now? (y/n): " choice || { echo "Invalid input. Exiting script."; exit 1; }
+read -p -r "Do you want to reboot now? (y/n): " choice || { echo "Invalid input. Exiting script."; exit 1; }
 
 # Handle the user's choice
 if [[ "$choice" =~ ^[Yy]$ ]]; then
