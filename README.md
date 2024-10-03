@@ -54,7 +54,7 @@
 - **Rollback to a Previous Snapshot**: To revert to a previous snapshot, use:
 
   ```bash
-  sudo snapper rollback <snapper-id>
+  sudo snapper-rollback <snapper-id>
   ```
 
   Replace `<snapper-id>` with the ID of the snapshot, which you can find by listing all snapshots.
