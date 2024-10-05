@@ -1,9 +1,9 @@
 #!/bin/sh -e
 
-
 . /common-script.sh
 . /fedora.sh
 . /arch.sh
+. /debian.sh
 
 
 # Function to determine the distribution based on the package manager
