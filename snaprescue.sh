@@ -1,9 +1,21 @@
 #!/bin/sh -e
 
-. /common-script.sh
-. /fedora.sh
-. /arch.sh
-. /debian.sh
+# . /common-script.sh
+# . /fedora.sh
+# . /arch.sh
+# . /debian.sh
+
+
+
+
+# Determine the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# Source the scripts using their absolute paths
+. "${SCRIPT_DIR}/common-script.sh"
+. "${SCRIPT_DIR}/fedora.sh"
+. "${SCRIPT_DIR}/arch.sh"
+. "${SCRIPT_DIR}/debian.sh"
 
 
 # Function to determine the distribution based on the package manager
